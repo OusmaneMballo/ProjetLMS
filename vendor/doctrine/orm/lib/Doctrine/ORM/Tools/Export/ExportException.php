@@ -1,4 +1,5 @@
 <?php
+
 /*
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -21,6 +22,9 @@ namespace Doctrine\ORM\Tools\Export;
 
 use Doctrine\ORM\ORMException;
 
+/**
+ * @deprecated 2.7 This class is being removed from the ORM and won't have any replacement
+ */
 class ExportException extends ORMException
 {
     /**
@@ -50,6 +54,6 @@ class ExportException extends ORMException
      */
     public static function attemptOverwriteExistingFile($file)
     {
-        return new self("Attempting to overwrite an existing file '".$file."'.");
+        return new self("Attempting to overwrite an existing file '" . $file . "'.");
     }
 }

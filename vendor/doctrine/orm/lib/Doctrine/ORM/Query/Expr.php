@@ -1,4 +1,5 @@
 <?php
+
 /*
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -19,15 +20,22 @@
 
 namespace Doctrine\ORM\Query;
 
+use Traversable;
+
+use function func_get_args;
+use function implode;
+use function is_bool;
+use function is_iterable;
+use function is_numeric;
+use function is_string;
+use function iterator_to_array;
+use function str_replace;
+
 /**
  * This class is used to generate DQL expressions via a set of PHP static functions.
  *
  * @link    www.doctrine-project.org
- * @since   2.0
- * @author  Guilherme Blanco <guilhermeblanco@hotmail.com>
- * @author  Jonathan Wage <jonwage@gmail.com>
- * @author  Roman Borschel <roman@code-factory.org>
- * @author  Benjamin Eberlei <kontakt@beberlei.de>
+ *
  * @todo Rename: ExpressionBuilder
  */
 class Expr
@@ -41,10 +49,13 @@ class Expr
      *     // (u.type = ?1) AND (u.role = ?2)
      *     $expr->andX($expr->eq('u.type', ':1'), $expr->eq('u.role', ':2'));
      *
-     * @param Expr\Comparison|Expr\Func|Expr\Orx|string $x Optional clause. Defaults to null, but requires at least one
-     *                                                     defined when converting to string.
+     * @param Expr\Comparison|Expr\Func|Expr\Andx|Expr\Orx|string $x Optional clause. Defaults to null,
+     *                                                               but requires at least one defined
+     *                                                               when converting to string.
      *
      * @return Expr\Andx
+     *
+     * @psalm-param Expr\Comparison|Expr\Func|Expr\Andx|Expr\Orx|string ...$x
      */
     public function andX($x = null)
     {
@@ -60,10 +71,13 @@ class Expr
      *     // (u.type = ?1) OR (u.role = ?2)
      *     $q->where($q->expr()->orX('u.type = ?1', 'u.role = ?2'));
      *
-     * @param mixed $x Optional clause. Defaults to null, but requires
-     *                 at least one defined when converting to string.
+     * @param Expr\Comparison|Expr\Func|Expr\Andx|Expr\Orx|string $x Optional clause. Defaults to null,
+     *                                                               but requires at least one defined
+     *                                                               when converting to string.
      *
      * @return Expr\Orx
+     *
+     * @psalm-param Expr\Comparison|Expr\Func|Expr\Andx|Expr\Orx|string ...$x
      */
     public function orX($x = null)
     {
@@ -342,6 +356,17 @@ class Expr
     }
 
     /**
+     * Creates a MOD($x, $y) function expression to return the remainder of $x divided by $y.
+     *
+     * @param mixed $x
+     * @param mixed $y
+     */
+    public function mod($x, $y): Expr\Func
+    {
+        return new Expr\Func('MOD', [$x, $y]);
+    }
+
+    /**
      * Creates a product mathematical expression with the given arguments.
      *
      * First argument is considered the left expression and the second is the right expression.
@@ -440,9 +465,13 @@ class Expr
      */
     public function in($x, $y)
     {
-        if (is_array($y)) {
+        if (is_iterable($y)) {
+            if ($y instanceof Traversable) {
+                $y = iterator_to_array($y);
+            }
+
             foreach ($y as &$literal) {
-                if ( ! ($literal instanceof Expr\Literal)) {
+                if (! ($literal instanceof Expr\Literal)) {
                     $literal = $this->_quoteLiteral($literal);
                 }
             }
@@ -461,9 +490,13 @@ class Expr
      */
     public function notIn($x, $y)
     {
-        if (is_array($y)) {
+        if (is_iterable($y)) {
+            if ($y instanceof Traversable) {
+                $y = iterator_to_array($y);
+            }
+
             foreach ($y as &$literal) {
-                if ( ! ($literal instanceof Expr\Literal)) {
+                if (! ($literal instanceof Expr\Literal)) {
                     $literal = $this->_quoteLiteral($literal);
                 }
             }
@@ -525,7 +558,7 @@ class Expr
     /**
      * Creates a CONCAT() function expression with the given arguments.
      *
-     * @param mixed $x First argument to be used in CONCAT() function.
+     * @param mixed $x     First argument to be used in CONCAT() function.
      * @param mixed $y,... Other arguments to be used in CONCAT() function.
      *
      * @return Expr\Func
@@ -547,7 +580,7 @@ class Expr
     public function substring($x, $from, $len = null)
     {
         $args = [$x, $from];
-        if (null !== $len) {
+        if ($len !== null) {
             $args[] = $len;
         }
 
@@ -611,10 +644,10 @@ class Expr
      */
     private function _quoteLiteral($literal)
     {
-        if (is_numeric($literal) && !is_string($literal)) {
+        if (is_numeric($literal) && ! is_string($literal)) {
             return (string) $literal;
-        } else if (is_bool($literal)) {
-            return $literal ? "true" : "false";
+        } elseif (is_bool($literal)) {
+            return $literal ? 'true' : 'false';
         }
 
         return "'" . str_replace("'", "''", $literal) . "'";
@@ -623,11 +656,11 @@ class Expr
     /**
      * Creates an instance of BETWEEN() function, with the given argument.
      *
-     * @param mixed          $val Valued to be inspected by range values.
-     * @param integer|string $x   Starting range value to be used in BETWEEN() function.
-     * @param integer|string $y   End point value to be used in BETWEEN() function.
+     * @param mixed      $val Valued to be inspected by range values.
+     * @param int|string $x   Starting range value to be used in BETWEEN() function.
+     * @param int|string $y   End point value to be used in BETWEEN() function.
      *
-     * @return Expr\Func A BETWEEN expression.
+     * @return string A BETWEEN expression.
      */
     public function between($val, $x, $y)
     {

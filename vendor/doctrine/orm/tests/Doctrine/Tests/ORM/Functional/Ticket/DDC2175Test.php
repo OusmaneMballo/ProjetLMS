@@ -1,0 +1,64 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Doctrine\Tests\ORM\Functional\Ticket;
+
+use Doctrine\Tests\OrmFunctionalTestCase;
+
+/**
+ * @group DDC-2175
+ */
+class DDC2175Test extends OrmFunctionalTestCase
+{
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->_schemaTool->createSchema(
+            [
+                $this->_em->getClassMetadata(DDC2175Entity::class),
+            ]
+        );
+    }
+
+    public function testIssue(): void
+    {
+        $entity        = new DDC2175Entity();
+        $entity->field = 'foo';
+
+        $this->_em->persist($entity);
+        $this->_em->flush();
+
+        $this->assertEquals(1, $entity->version);
+
+        $entity->field = 'bar';
+        $this->_em->flush();
+
+        $this->assertEquals(2, $entity->version);
+
+        $entity->field = 'baz';
+        $this->_em->flush();
+
+        $this->assertEquals(3, $entity->version);
+    }
+}
+
+/**
+ * @Entity
+ * @InheritanceType("JOINED")
+ * @DiscriminatorMap({"entity": "DDC2175Entity"})
+ */
+class DDC2175Entity
+{
+    /** @Id @GeneratedValue @Column(type="integer") */
+    public $id;
+
+    /** @Column(type="string") */
+    public $field;
+
+    /**
+     * @Version
+     * @Column(type="integer")
+     */
+    public $version;
+}

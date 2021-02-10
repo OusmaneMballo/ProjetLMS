@@ -15,9 +15,9 @@ Doctrine ORM don't panic. You can get help from different sources:
 -  There is a :doc:`FAQ <reference/faq>` with answers to frequent questions.
 -  The `Doctrine Mailing List <https://groups.google.com/group/doctrine-user>`_
 -  Slack chat room `#orm <https://www.doctrine-project.org/slack>`_
--  Report a bug on `GitHub <https://github.com/doctrine/doctrine2/issues>`_.
+-  Report a bug on `GitHub <https://github.com/doctrine/orm/issues>`_.
 -  On `Twitter <https://twitter.com/search/%23doctrine2>`_ with ``#doctrine2``
--  On `StackOverflow <http://stackoverflow.com/questions/tagged/doctrine2>`_
+-  On `StackOverflow <https://stackoverflow.com/questions/tagged/doctrine-orm>`_
 
 If you need more structure over the different topics you can browse the :doc:`table
 of contents <toc>`.
@@ -95,7 +95,7 @@ Tutorials
 Changelogs
 ----------
 
-* :doc:`Migration to 2.5 <changelog/migration_2_5>`
+* `Upgrade <https://github.com/doctrine/doctrine2/blob/master/UPGRADE.md>`_
 
 Cookbook
 --------
@@ -117,9 +117,6 @@ Cookbook
   :doc:`Validation <cookbook/validation-of-entities>` |
   :doc:`Entities in the Session <cookbook/entities-in-session>` |
   :doc:`Keeping your Modules independent <cookbook/resolve-target-entity-listener>`
-
-* **Integration into Frameworks/Libraries**
-  :doc:`CodeIgniter <cookbook/integrating-with-codeigniter>`
 
 * **Hidden Gems**
   :doc:`Prefixing Table Name <cookbook/sql-table-prefixes>`
